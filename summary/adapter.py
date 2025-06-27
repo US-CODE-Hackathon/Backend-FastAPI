@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-
 load_dotenv()
 
 

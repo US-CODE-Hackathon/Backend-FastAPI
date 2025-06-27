@@ -1,22 +1,27 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from summary.service import get_summary
+from typing import List
+from summary.service import get_summary_detail
 
 router = APIRouter()
 
 
-class SummaryRequest(BaseModel):
-    input: str
+class QnaItem(BaseModel):
+    question: str
+    answer: str
 
 
-class SummaryResponse(BaseModel):
-    output: str
+class SummaryDetailResponse(BaseModel):
+    title: str
+    sentiment: str
+    summary: str
 
 
-@router.post("/summary", response_model=SummaryResponse)
-def summary_endpoint(request: SummaryRequest):
+@router.post("/summary", response_model=SummaryDetailResponse)
+def summary_detail_endpoint(qna_list: List[QnaItem]):
     try:
-        output = get_summary(request.input)
-        return SummaryResponse(output=output)
+        qna_dicts = [qna.dict() for qna in qna_list]
+        result = get_summary_detail(qna_dicts)
+        return SummaryDetailResponse(**result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
