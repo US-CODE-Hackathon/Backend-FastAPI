@@ -1,0 +1,40 @@
+name: Docker Build & Deploy to Server
+
+on:
+  push:
+    branches: ["tmp"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-app:latest
+
+      - name: Deploy to Remote Server via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: dev.yeachan
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo '${{ secrets.DOCKERHUB_PASSWORD }}' | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            docker stop fastapi-app || true
+            docker rm fastapi-app || true
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-app:latest
+            docker run -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-app:latest
