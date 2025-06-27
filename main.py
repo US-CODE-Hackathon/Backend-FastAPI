@@ -2,9 +2,18 @@ from typing import Union
 
 from fastapi import FastAPI
 from summary.router import router as summary_router
+from db import SessionLocal, engine, Base
 
 app = FastAPI()
 app.include_router(summary_router)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/")
