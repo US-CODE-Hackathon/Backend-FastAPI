@@ -2,7 +2,7 @@ name: Docker Build & Deploy to Server
 
 on:
   push:
-    branches: ["tmp"]
+    branches: ["main"]
 
 jobs:
   build-and-deploy:
@@ -34,7 +34,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             echo '${{ secrets.DOCKERHUB_PASSWORD }}' | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-app:latest
             docker stop fastapi-app || true
             docker rm fastapi-app || true
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-app:latest
             docker run -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-app:latest
