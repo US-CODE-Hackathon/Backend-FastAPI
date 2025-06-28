@@ -3,9 +3,11 @@ from typing import Union
 from fastapi import FastAPI
 from summary.router import router as summary_router
 from db import SessionLocal, engine, Base
+from stt_tts.router import router as stt_tts_router
 
 app = FastAPI()
 app.include_router(summary_router)
+app.include_router(stt_tts_router)
 
 
 def get_db():
