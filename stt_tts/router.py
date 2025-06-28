@@ -10,12 +10,22 @@ router = APIRouter()
 # STT 엔드포인트
 @router.post("/stt")
 async def speech_to_text(file: UploadFile = File(...)):
+    filename = file.filename.lower()
+    if filename.endswith(".wav"):
+        encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16
+        sample_rate = 16000  # 실제 wav 파일의 샘플레이트로 맞추세요
+    elif filename.endswith(".mp3"):
+        encoding = speech.RecognitionConfig.AudioEncoding.MP3
+        sample_rate = 44100  # 실제 mp3 파일의 샘플레이트로 맞추세요
+    else:
+        return {"text": "지원하지 않는 파일 포맷입니다. wav 또는 mp3만 업로드하세요."}
+
     client = speech.SpeechClient()
     audio_content = await file.read()
     audio = speech.RecognitionAudio(content=audio_content)
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,  # wav라면 LINEAR16, mp3면 적절히 변경
-        sample_rate_hertz=16000,  # 프론트에서 보낼 파일의 샘플레이트에 맞게
+        encoding=encoding,
+        sample_rate_hertz=sample_rate,
         language_code="ko-KR",
     )
     response = client.recognize(config=config, audio=audio)
