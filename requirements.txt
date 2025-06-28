@@ -37,3 +37,7 @@ websockets==15.0.1
 fastapi
 uvicorn[standard]
 gunicorn
+fastapi
+uvicorn[standard]
+gunicorn
+sqlalchemy
