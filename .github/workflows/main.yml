@@ -38,6 +38,8 @@ jobs:
             docker stop fastapi-app || true
             docker rm fastapi-app || true
             docker run -d --name fastapi-app -p 8000:8000 \
+              -v /home/dev.yeachan/gcpkey.json:/app/gcpkey.json \
+              -e GOOGLE_APPLICATION_CREDENTIALS=/app/gcpkey.json \
               -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
               -e DB_USER=${{ secrets.DB_USER }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
