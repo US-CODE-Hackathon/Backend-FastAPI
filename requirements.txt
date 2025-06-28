@@ -43,3 +43,5 @@ gunicorn
 sqlalchemy
 pymysql
 python-dotenv
+google-cloud-speech
+google-cloud-texttospeech
