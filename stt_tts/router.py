@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from google.cloud import speech, texttospeech
 import io
 import os
+import soundfile as sf
 
 router = APIRouter()
 
@@ -11,17 +12,19 @@ router = APIRouter()
 @router.post("/stt")
 async def speech_to_text(file: UploadFile = File(...)):
     filename = file.filename.lower()
+    audio_content = await file.read()
     if filename.endswith(".wav"):
+        f = io.BytesIO(audio_content)
+        with sf.SoundFile(f) as audio_file:
+            sample_rate = audio_file.samplerate
         encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16
-        sample_rate = 16000  # 실제 wav 파일의 샘플레이트로 맞추세요
     elif filename.endswith(".mp3"):
         encoding = speech.RecognitionConfig.AudioEncoding.MP3
-        sample_rate = 44100  # 실제 mp3 파일의 샘플레이트로 맞추세요
+        sample_rate = 44100
     else:
         return {"text": "지원하지 않는 파일 포맷입니다. wav 또는 mp3만 업로드하세요."}
 
     client = speech.SpeechClient()
-    audio_content = await file.read()
     audio = speech.RecognitionAudio(content=audio_content)
     config = speech.RecognitionConfig(
         encoding=encoding,
